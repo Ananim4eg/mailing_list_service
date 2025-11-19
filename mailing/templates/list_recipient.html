@@ -1,15 +1,61 @@
 {% block content %}
 
 {% include 'main_menu.html' %}
-
-<div class="container mt-5">
-    <h1 class="mb-4">Добавление получателя</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Добавить</button>
-        <a href="{% url 'mailing:home_page' %}" class="btn btn-secondary">Отмена</a>
-    </form>
+<div class="btn-group" role="group">
+    <a href="{% url 'mailing:create_recipient' %}" class="btn-lg btn btn-light ms-5 mt-3">Добавить получателя</a>
+</div>
+<div class="row m-0">
+    <div class="rounded-3 shadow mt-4 ms-3 col-6">
+        <h2 class="mb-4 text-center">Список получателей</h2>
+        <ul class="list-group mb-1" id="recipients-list">
+            {% for recipient in recipients %}
+            <li class="list-group-item btn-lg btn btn-dark text-start mb-2"
+                data-id="{{ recipient.id }}"
+                data-url="{% url 'mailing:detail_recipient' recipient.id %}">
+                {{ recipient.email }}<br>
+                {{ recipient.full_name }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="rounded-3 shadow col-5 ms-3 mt-4 me-3 ms-auto" id="detail-recipient">
+        <p class="text-muted text-center">Выберите получателя из списка</p>
+    </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const recipientsList = document.getElementById('recipients-list');
+const detailsContainer = document.getElementById('detail-recipient');
+
+
+recipientsList.addEventListener('click', function(e) {
+if (e.target && e.target.matches('.list-group-item')) {
+const recipientId = e.target.getAttribute('data-id');
+const url = e.target.getAttribute('data-url');
+
+
+fetch(url, {
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+    }
+})
+.then(response => response.json())
+.then(data => {
+detailsContainer.innerHTML = `
+<h5 class="card-title text-center">${data.fullname}</h5>
+<p class="mt-2"><strong>Email:</strong> ${data.email}</p>
+<p><strong>Comment:</strong> ${data.comment}</p>
+`;
+})
+.catch(error => {
+console.error('Ошибка:', error);
+detailsContainer.innerHTML = '<div class="alert alert-danger">Не удалось загрузить данные</div>';
+});
+}
+});
+});
+</script>
 {% endblock %}
+
+

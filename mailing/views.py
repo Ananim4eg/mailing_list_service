@@ -1,4 +1,7 @@
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 
 from mailing.forms import RecipientForm
@@ -25,19 +28,33 @@ class ListRecipientView(ListView):
 
     model = Recipient
     template_name = "list_recipient.html"
-    context_object_name = 'recipient'
+    context_object_name = 'recipients'
 
 
-class DetailRecipientView(DetailView):
+class DetailRecipientView(View):
     """Контроллер для страницы с подробной информацией о получателе рассылки"""
 
-    model = Recipient
+    def get(self, request, pk):
+        recipient = get_object_or_404(Recipient, pk=pk)
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            data = {
+                'fullname': recipient.full_name,
+                'email': recipient.email,
+                'comment': recipient.comment
+            }
+
+            return JsonResponse(data)
+
+        return render(request, 'detail_recipient.html', {'recipient': recipient})
 
 
 class UpdateRecipientView(UpdateView):
     """Контроллер для страницы изменения информации о получателе рассылки"""
 
     model = Recipient
+    form_class = RecipientForm
+    template_name = "update_recipient.html"
 
 
 class DeleteRecipientView(DeleteView):

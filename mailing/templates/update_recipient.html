@@ -1,0 +1,15 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Редактирование получателя</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-outline-secondary">Сохранить</button>
+        <a href="{% url 'mailing:detail_recipient' pk=recipient.pk %}" class="btn btn-outline-secondary">Отмена</a>
+    </form>
+</div>
+
+{% endblock %}
