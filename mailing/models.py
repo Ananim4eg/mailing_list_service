@@ -6,7 +6,7 @@ class Recipient(models.Model):
 
     email = models.EmailField(unique=True, verbose_name='Почта получателя')
     full_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='ФИО')
-    comment = models.TextField()
+    comment = models.TextField(verbose_name='Комментарий')
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 

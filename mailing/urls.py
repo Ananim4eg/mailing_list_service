@@ -1,0 +1,33 @@
+from django.urls import path
+
+from mailing.apps import MailingConfig
+from mailing.views import CreateRecipientView, ListRecipientView, UpdateRecipientView, DetailRecipientView, \
+    DeleteRecipientView, HomeListView, ListMessageView, CreateMessageView, UpdateMessageView, DetailMessageView, \
+    DeleteMessageView, DeleteMailingView, DetailMailingView, UpdateMailingView, CreateMailingView, ListMailingView, \
+    DeleteLogMailingView, DetailLogMailingView, UpdateLogMailingView, CreateLogMailingView, ListLogMailingView
+
+app_name = MailingConfig.name
+
+urlpatterns = [
+    path('', HomeListView.as_view(), name='home_page'),
+    path('recipient/', ListRecipientView.as_view(), name='all_recipient'),
+    path('recipient/create/', CreateRecipientView.as_view(), name='create_recipient'),
+    path('recipient/update/<int:pk>/', UpdateRecipientView.as_view(), name='update_recipient'),
+    path('recipient/detail/<int:pk>/', DetailRecipientView.as_view(), name='detail_recipient'),
+    path('recipient/delete/<int:pk>/', DeleteRecipientView.as_view(), name='delete_recipient'),
+    path('message/', ListMessageView.as_view(), name='all_message'),
+    path('message/create/', CreateMessageView.as_view(), name='create_message'),
+    path('message/update/<int:pk>/', UpdateMessageView.as_view(), name='update_message'),
+    path('message/detail/<int:pk>/', DetailMessageView.as_view(), name='detail_message'),
+    path('message/delete/<int:pk>/', DeleteMessageView.as_view(), name='delete_message'),
+    path('mailing/', ListMailingView.as_view(), name='all_mailing'),
+    path('mailing/create/', CreateMailingView.as_view(), name='create_mailing'),
+    path('mailing/update/<int:pk>/', UpdateMailingView.as_view(), name='update_mailing'),
+    path('mailing/detail/<int:pk>/', DetailMailingView.as_view(), name='detail_mailing'),
+    path('mailing/delete/<int:pk>/', DeleteMailingView.as_view(), name='delete_mailing'),
+    path('log_mailing/', ListLogMailingView.as_view(), name='all_log_mailing'),
+    path('log_mailing/create/', CreateLogMailingView.as_view(), name='create_log_mailing'),
+    path('log_mailing/update/<int:pk>/', UpdateLogMailingView.as_view(), name='update_log_mailing'),
+    path('log_mailing/detail/<int:pk>/', DetailLogMailingView.as_view(), name='detail_log_mailing'),
+    path('log_mailing/delete/<int:pk>/', DeleteLogMailingView.as_view(), name='delete_log_mailing'),
+]
