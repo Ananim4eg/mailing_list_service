@@ -23,7 +23,7 @@ class Message(models.Model):
     """Модель сообщения"""
 
     message_subject = models.CharField(max_length=50, verbose_name='Тема письма')
-    message_body = models.TextField()
+    message_body = models.TextField(verbose_name='Тело письма')
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 

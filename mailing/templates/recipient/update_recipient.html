@@ -7,8 +7,8 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-outline-secondary">Сохранить</button>
-        <a href="{% url 'mailing:all_recipient'%}" class="btn btn-outline-secondary">Отмена</a>
+        <button type="submit" class="btn-lg btn btn-light bg-secondary bg-opacity-25 pt-1 pb-1">Сохранить</button>
+        <a href="{% url 'mailing:all_recipient' %}" class="btn-lg btn btn-light bg-secondary bg-opacity-25 pt-1 pb-1">Отмена</a>
     </form>
 </div>
 

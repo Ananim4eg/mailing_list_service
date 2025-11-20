@@ -1,0 +1,20 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="container rounded-4 shadow border border-black border-opacity-50 col-8 mt-5 text-center">
+    <h3 class="pt-2">Информация о сообщении</h3>
+    <div class="text-start ms-4">
+        <h5>Тема сообщения:</h5>
+        <p class="mt-1">{{ message.message_subject }}</p>
+        <h5 class="mt-4">Тело сообщения:</h5>
+        <p>{{ message.message_body }}</p>
+    </div>
+    <div class="mt-4 mb-3">
+        <a href="{% url 'mailing:update_message' pk=message.pk %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Редактировать</a>
+        <a href="{% url 'mailing:all_message' %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Назад</a>
+        <a href="{% url 'mailing:delete_message' pk=message.pk %}"
+           class="btn-lg btn btn-danger pt-1 pb-1 mt-3 ms-auto">Удалить</a>
+    </div>
+</div>
+
+{% endblock %}

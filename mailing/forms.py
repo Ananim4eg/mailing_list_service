@@ -1,6 +1,6 @@
 from django import forms
 
-from mailing.models import Recipient
+from mailing.models import Recipient, Message
 
 
 class RecipientForm(forms.ModelForm):
@@ -31,3 +31,25 @@ class RecipientForm(forms.ModelForm):
         model = Recipient
         fields = ['email', 'full_name', 'comment']
 
+
+class MessageForm(forms.ModelForm):
+    """Форма для полей модели получателя"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['message_subject'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите тему сообщения',
+            'style': 'width: 600px;'
+        })
+
+        self.fields['message_body'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите текст сообщения',
+            'style': 'width: 600px;'
+        })
+
+    class Meta:
+        model = Message
+        fields = ['message_subject', 'message_body',]

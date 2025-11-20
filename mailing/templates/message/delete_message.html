@@ -1,0 +1,14 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="container col-8 mt-4 text-center">
+    <h2>Удаление {{ message.message_subject }}</h2>
+    <p class="mt-4">Вы уверены, что хотите удалить "{{ message.message_subject }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-lg btn btn-danger pt-1 pb-1 mt-3">Удалить</button>
+        <a href="{% url 'mailing:all_message' %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Отмена</a>
+    </form>
+</div>
+
+{% endblock %}

@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 
-from mailing.forms import RecipientForm
+from mailing.forms import RecipientForm, MessageForm
 from mailing.models import Recipient, Message, Mailing, LogMailing
 
 
@@ -21,14 +21,14 @@ class CreateRecipientView(CreateView):
 
     model = Recipient
     form_class = RecipientForm
-    template_name = "create_recipient.html"
+    template_name = "recipient/create_recipient.html"
     success_url = reverse_lazy('mailing:home_page')
 
 class ListRecipientView(ListView):
     """Контроллер для страницы со списком всех получателей рассылки"""
 
     model = Recipient
-    template_name = "list_recipient.html"
+    template_name = "recipient/list_recipient.html"
     context_object_name = 'recipients'
 
 
@@ -51,7 +51,7 @@ class DetailRecipientView(View):
 
             return JsonResponse(data)
 
-        return render(request, 'detail_recipient.html', {'recipient': recipient})
+        return render(request, 'recipient/detail_recipient.html', {'recipient': recipient})
 
 
 class UpdateRecipientView(UpdateView):
@@ -59,7 +59,7 @@ class UpdateRecipientView(UpdateView):
 
     model = Recipient
     form_class = RecipientForm
-    template_name = "update_recipient.html"
+    template_name = "recipient/update_recipient.html"
     success_url = reverse_lazy('mailing:all_recipient')
 
 
@@ -67,7 +67,7 @@ class DeleteRecipientView(DeleteView):
     """Контроллер для страницы удаления получателя рассылки"""
 
     model = Recipient
-    template_name = 'delete_recipient.html'
+    template_name = 'recipient/delete_recipient.html'
     context_object_name = 'recipient'
     success_url = reverse_lazy('mailing:all_recipient')
 
@@ -76,30 +76,47 @@ class CreateMessageView(CreateView):
     """Контроллер для страницы создание сообщения"""
 
     model = Message
+    form_class = MessageForm
+    template_name = 'message/create_message.html'
+    success_url = reverse_lazy('mailing:all_message')
 
 
 class ListMessageView(ListView):
     """Контроллер для страницы со списком всех сообщений"""
 
     model = Message
+    template_name = 'message/list_message.html'
+    context_object_name = 'messages'
 
 
 class DetailMessageView(DetailView):
     """Контроллер для страницы с подробной информацией об отдельном сообщении"""
 
     model = Message
+    form_class = MessageForm
+    template_name = 'message/detail_message.html'
+    context_object_name = 'message'
 
 
 class UpdateMessageView(UpdateView):
     """Контроллер для страницы изменения сообщения"""
 
     model = Message
+    form_class = MessageForm
+    template_name = 'message/update_message.html'
+    context_object_name = 'message'
+
+    def get_success_url(self):
+        return reverse_lazy('mailing:detail_message', kwargs={'pk': self.object.pk})
 
 
 class DeleteMessageView(DeleteView):
     """Контроллер для страницы удаления сообщения"""
 
     model = Message
+    template_name = 'message/delete_message.html'
+    context_object_name = 'message'
+    success_url = reverse_lazy('mailing:all_recipient')
 
 
 class CreateMailingView(CreateView):
