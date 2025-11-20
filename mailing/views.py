@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -41,7 +42,11 @@ class DetailRecipientView(View):
             data = {
                 'fullname': recipient.full_name,
                 'email': recipient.email,
-                'comment': recipient.comment
+                'comment': recipient.comment,
+                'urls':{
+                    'url_1': reverse('mailing:update_recipient', kwargs={'pk': recipient.pk}),
+                    'url_2': reverse('mailing:delete_recipient', kwargs={'pk': recipient.pk}),
+                }
             }
 
             return JsonResponse(data)
@@ -55,12 +60,16 @@ class UpdateRecipientView(UpdateView):
     model = Recipient
     form_class = RecipientForm
     template_name = "update_recipient.html"
+    success_url = reverse_lazy('mailing:all_recipient')
 
 
 class DeleteRecipientView(DeleteView):
     """Контроллер для страницы удаления получателя рассылки"""
 
     model = Recipient
+    template_name = 'delete_recipient.html'
+    context_object_name = 'recipient'
+    success_url = reverse_lazy('mailing:all_recipient')
 
 
 class CreateMessageView(CreateView):

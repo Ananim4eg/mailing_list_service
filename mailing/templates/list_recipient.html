@@ -4,9 +4,9 @@
 <div class="btn-group" role="group">
     <a href="{% url 'mailing:create_recipient' %}" class="btn-lg btn btn-light ms-5 mt-3">Добавить получателя</a>
 </div>
-<div class="row m-0">
+<div class="row align-items-start m-0">
     <div class="rounded-3 shadow mt-4 ms-3 col-6">
-        <h2 class="mb-4 text-center">Список получателей</h2>
+        <h2 class="mb-4 mt-1 text-center">Список получателей</h2>
         <ul class="list-group mb-1" id="recipients-list">
             {% for recipient in recipients %}
             <li class="list-group-item btn-lg btn btn-dark text-start mb-2"
@@ -18,7 +18,7 @@
             {% endfor %}
         </ul>
     </div>
-    <div class="rounded-3 shadow col-5 ms-3 mt-4 me-3 ms-auto" id="detail-recipient">
+    <div class="rounded-3 shadow col-5 ms-3 mt-4 me-3 ms-auto position-relative" id="detail-recipient">
         <p class="text-muted text-center">Выберите получателя из списка</p>
     </div>
 </div>
@@ -43,9 +43,13 @@ fetch(url, {
 .then(response => response.json())
 .then(data => {
 detailsContainer.innerHTML = `
-<h5 class="card-title text-center">${data.fullname}</h5>
+<h5 class="card-title text-center mt-2">${data.fullname}</h5>
 <p class="mt-2"><strong>Email:</strong> ${data.email}</p>
-<p><strong>Comment:</strong> ${data.comment}</p>
+<p class="mb-5 pb-5"><strong>Comment:</strong> ${data.comment}</p>
+<div class="position-absolute bottom-0 start-50 translate-middle-x d-flex mb-3">
+    <a href="${data.urls.url_1}" class="btn-lg btn btn-light me-1">Редактировать</a>
+    <a href="${data.urls.url_2}" class="btn-lg btn btn-light text-danger-emphasis">Удалить</a>
+</div>
 `;
 })
 .catch(error => {
