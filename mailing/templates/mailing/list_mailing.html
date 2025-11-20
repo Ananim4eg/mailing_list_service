@@ -1,0 +1,22 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="btn-group" role="group">
+    <a href="{% url 'mailing:create_mailing' %}" class="btn-lg btn btn-light bg-secondary bg-opacity-25 ms-5 mt-3">
+        Добавить рассылку
+    </a>
+</div>
+<div class="container rounded-4 shadow mt-4 col-6 pb-3">
+    <h3 class="mb-4 mt-1 text-center">Список рассылок</h3>
+    <ul class="list-group">
+        {% for mailing in mailings %}
+        <li class="border-black border-opacity-25 list-group-item btn-lg btn btn-dark">
+            <a class="stretched-link" href="{% url 'mailing:detail_mailing' pk=mailing.pk %}"></a>
+            id - {{ mailing.id }} "{{ mailing.message }}"
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+

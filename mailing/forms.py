@@ -1,6 +1,6 @@
 from django import forms
 
-from mailing.models import Recipient, Message
+from mailing.models import Recipient, Message, Mailing
 
 
 class RecipientForm(forms.ModelForm):
@@ -53,3 +53,29 @@ class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ['message_subject', 'message_body',]
+
+
+class MailingForm(forms.ModelForm):
+    """Форма для полей модели получателя"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['recipient'].widget.attrs.update({
+            'class': 'form-select',
+            'style': 'width: 600px;'
+        })
+
+        self.fields['message'].widget.attrs.update({
+            'class': 'form-select',
+            'style': 'width: 600px;'
+        })
+
+        self.fields['status'].widget.attrs.update({
+            'class': 'form-select',
+            'style': 'width: 150px;'
+        })
+
+    class Meta:
+        model = Mailing
+        fields = ['recipient', 'message','status',]

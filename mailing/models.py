@@ -45,8 +45,8 @@ class Mailing(models.Model):
         ('stoped', 'Завершена'),
     ]
 
-    first_message = models.DateTimeField(verbose_name='Дата первого сообщения')
-    stop_mailing = models.DateTimeField(verbose_name='Дата окончания рассылки')
+    first_message = models.DateTimeField(verbose_name='Дата первого сообщения', null=True, blank=True)
+    stop_mailing = models.DateTimeField(verbose_name='Дата окончания рассылки', null=True, blank=True)
     status = models.CharField(choices=STATUS_CHOICES, default='created', verbose_name='Статус рассылки')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='Сообщение')
     recipient = models.ManyToManyField(Recipient, related_name='mailings')

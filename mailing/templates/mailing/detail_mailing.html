@@ -1,0 +1,31 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="container rounded-4 shadow border border-black border-opacity-50 col-8 mt-5 text-center">
+    <h3 class="pt-2">Информация о рассылке с id {{ mailing.id }}</h3>
+    <div class="text-start ms-4">
+        <h5>Получатели:</h5>
+        <p class="mt-1">
+            {% for recipient in mailing.recipient.all %}
+            {{ recipient.email }}
+            {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        <h5 class="mt-4">Сообщение:</h5>
+        <p>{{ mailing.message.message_subject }}</p>
+        <h5 class="mt-4">Статус:</h5>
+        <p>{{ mailing.get_status_display }}</p>
+        <h5 class="mt-4">Дата первого сообщения:</h5>
+        <p>{{ mailing.first_message }}</p>
+        <h5 class="mt-4">Дата окончания рассылки:</h5>
+        <p>{{ mailing.stop_mailing }}</p>
+    </div>
+    <div class="mt-4 mb-3">
+        <a href="{% url 'mailing:update_mailing' pk=mailing.pk %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Редактировать</a>
+        <a href="{% url 'mailing:all_mailing' %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Назад</a>
+        <a href="{% url 'mailing:delete_mailing' pk=mailing.pk %}"
+           class="btn-lg btn btn-danger pt-1 pb-1 mt-3 ms-auto">Удалить</a>
+    </div>
+</div>
+
+{% endblock %}

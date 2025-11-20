@@ -1,0 +1,14 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="container col-8 mt-4 text-center">
+    <h2>Удаление {{ mailing.id }} - {{ mailing.message }}</h2>
+    <p class="mt-4">Вы уверены, что хотите удалить рассылку с id "{{ mailing.id }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-lg btn btn-danger pt-1 pb-1 mt-3">Удалить</button>
+        <a href="{% url 'mailing:all_mailing' %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Отмена</a>
+    </form>
+</div>
+
+{% endblock %}

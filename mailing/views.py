@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 
-from mailing.forms import RecipientForm, MessageForm
+from mailing.forms import RecipientForm, MessageForm, MailingForm
 from mailing.models import Recipient, Message, Mailing, LogMailing
 
 
@@ -116,37 +116,55 @@ class DeleteMessageView(DeleteView):
     model = Message
     template_name = 'message/delete_message.html'
     context_object_name = 'message'
-    success_url = reverse_lazy('mailing:all_recipient')
+    success_url = reverse_lazy('mailing:all_message')
 
 
 class CreateMailingView(CreateView):
     """Контроллер для страницы создание рассылки"""
 
     model = Mailing
+    form_class = MailingForm
+    template_name = 'mailing/create_mailing.html'
+    success_url = reverse_lazy('mailing:all_mailing')
 
 
 class ListMailingView(ListView):
     """Контроллер для страницы со списком всех рассылок"""
 
     model = Mailing
+    template_name = 'mailing/list_mailing.html'
+    context_object_name = 'mailings'
 
 
 class DetailMailingView(DetailView):
     """Контроллер для страницы с подробной информацией о рассылке"""
 
     model = Mailing
+    form_class = MailingForm
+    template_name = 'mailing/detail_mailing.html'
+    context_object_name = 'mailing'
 
 
 class UpdateMailingView(UpdateView):
     """Контроллер для страницы изменения рассылки"""
 
     model = Mailing
+    form_class = MailingForm
+    template_name = 'mailing/update_mailing.html'
+    context_object_name = 'mailing'
+
+    def get_success_url(self):
+        return reverse_lazy('mailing:detail_mailing', kwargs={'pk': self.object.pk})
 
 
 class DeleteMailingView(DeleteView):
     """Контроллер для страницы удаления рассылки"""
 
     model = Mailing
+    form_class = MailingForm
+    template_name = 'mailing/delete_mailing.html'
+    context_object_name = 'mailing'
+    success_url = reverse_lazy('mailing:all_mailing')
 
 
 class CreateLogMailingView(CreateView):
