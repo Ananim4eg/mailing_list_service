@@ -3,31 +3,28 @@
 {% include 'main_menu.html' %}
 
 <div class="row col-12 justify-content-center mt-4 m-0">
-    <div class="rounded-4 shadow bg-success-subtle col-3 m-4 p-4">
+    <div class="rounded-4 shadow bg-success-subtle col-3 m-4 p-4 position-relative">
         <div class="row text-center">
-            <h1 class="modal-title fs-5">Modal title</h1>
+            <h1 class="modal-title fs-5 pb-5">Всего рассылок</h1>
         </div>
-        <div class="modal-body py-0">
-            <p>This is a modal sheet, a variation of the modal that docs itself to the bottom of the viewport like the
-                newer share sheets in iOS.</p>
+        <div class="modal-body py-0 position-absolute bottom-0 start-50 translate-middle-x">
+            <strong><p class="mb-4">{{ quantity_mailings }}</p></strong>
         </div>
     </div>
-    <div class="rounded-4 shadow bg-success-subtle col-3 m-4 p-4">
+    <div class="rounded-4 shadow bg-success-subtle col-3 m-4 p-4 position-relative">
         <div class="row text-center">
-            <h1 class="modal-title fs-5">Modal title</h1>
+            <h1 class="modal-title fs-5 pb-5">Всего активных рассылок</h1>
         </div>
-        <div class="modal-body py-0">
-            <p>This is a modal sheet, a variation of the modal that docs itself to the bottom of the viewport like the
-                newer share sheets in iOS.</p>
+        <div class="modal-body py-0 text-center position-absolute bottom-0 start-50 translate-middle-x">
+            <strong><p class="mb-4">{{ quantity_starting_mailing }}</p></strong>
         </div>
     </div>
-    <div class="rounded-4 shadow bg-success-subtle col-3 m-4 p-4">
+    <div class="rounded-4 shadow bg-success-subtle col-3 m-4 p-4 position-relative">
         <div class="row text-center">
-            <h1 class="modal-title fs-5">Modal title</h1>
+            <h1 class="modal-title fs-5 pb-5">Всего уникальных получателей</h1>
         </div>
-        <div class="modal-body py-0">
-            <p>This is a modal sheet, a variation of the modal that docs itself to the bottom of the viewport like the
-                newer share sheets in iOS.</p>
+        <div class="modal-body py-0 text-center position-absolute bottom-0 start-50 translate-middle-x">
+            <strong><p class="mb-4">{{ quantity_uniq_recipients }}</p></strong>
         </div>
     </div>
 </div>

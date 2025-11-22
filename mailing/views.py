@@ -18,6 +18,20 @@ class HomeListView(ListView):
     model = Recipient
     template_name = "home_page.html"
 
+    def get_context_data(self, **kwargs):
+
+        quantity_uniq_recipients = Recipient.objects.all().distinct().count()
+        quantity_mailings = Mailing.objects.all().count()
+        quantity_starting_mailing = Mailing.objects.filter(status='started').count()
+
+        context = {
+            'quantity_uniq_recipients': quantity_uniq_recipients,
+            'quantity_mailings': quantity_mailings,
+            'quantity_starting_mailing': quantity_starting_mailing,
+        }
+
+        return context
+
 
 class CreateRecipientView(CreateView):
     """Контроллер для страницы создание получателя"""
@@ -154,10 +168,13 @@ class SendEmailView(DetailView):
     def post(self, request, pk):
         mailing = self.get_object()
 
+        success_count = 0
+        failed_emails = []
+
         try:
             subject = mailing.message.message_subject
             message_body = mailing.message.message_body
-            recipient_list = [r.email for r in mailing.recipient.all()]
+            recipient_list = mailing.recipient.all()
 
             if not recipient_list:
                 return JsonResponse({
@@ -165,25 +182,42 @@ class SendEmailView(DetailView):
                     'message': 'Нет получателей для отправки!'
                 })
 
-            send_mail(
-                subject=subject,
-                message=message_body,
-                from_email='new.mail.test@mail.ru',
-                recipient_list=recipient_list,
-                fail_silently=False
-            )
+            for recipient in recipient_list:
+                try:
+                    send_mail(
+                        subject=subject,
+                        message=message_body,
+                        from_email='new.mail.test@mail.ru',
+                        recipient_list=[recipient.email],
+                        fail_silently=False
+                    )
+                    success_count += 1
 
-            LogMailing.objects.create(
-                mailing=mailing,
-                run_time=timezone.now(),
-                status='success',
-            )
+                except Exception:
+                    failed_emails.append(recipient.email)
 
-            if mailing.status != 'started':
-                mailing.status = 'started'
-                mailing.save()
+            if len(failed_emails) == 0:
+                LogMailing.objects.create(
+                    mailing=mailing,
+                    run_time=timezone.now(),
+                    status='success',
+                    server_answer=f'Отправлено {success_count} писем'
+                )
+                if mailing.status != 'started':
+                    mailing.status = 'started'
+                    mailing.save()
 
-            return redirect('mailing:success_page')
+                return redirect('mailing:success_page')
+
+            else:
+                error_msg = f'Не удалось отправить на {len(failed_emails)} адресов: {", ".join(failed_emails)}'
+                LogMailing.objects.create(
+                    mailing=mailing,
+                    run_time=timezone.now(),
+                    status='unsuccess',
+                    server_answer=error_msg
+                )
+                raise Exception(error_msg)
 
         except Exception as e:
 
@@ -254,8 +288,8 @@ class ListLogMailingView(ListView):
         mailings_with_logs = mailings_with_logs.select_related('message')
 
         context['mailings'] = mailings_with_logs
-        return context
 
+        return context
 
 
 class DetailLogMailingView(View):
@@ -293,7 +327,6 @@ class DetailInfoLogMailingView(DetailView):
     template_name = 'log_mailing/detail_log_mailing.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
 
         all_try = LogMailing.objects.filter(mailing=self.kwargs['pk'])
         all_success_try = all_try.filter(status='success')

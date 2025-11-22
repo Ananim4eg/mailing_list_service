@@ -3,6 +3,9 @@
 {% include 'main_menu.html' %}
 <div class="container col-8 mt-4 text-center">
     <h2 class="text-danger-emphasis">Ошибка отправки</h2>
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
 </div>
 
 {% endblock %}
