@@ -73,7 +73,7 @@ class LogMailing(models.Model):
     run_time = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Дата и время попытки')
     status = models.CharField(choices=STATUS_CHOICES, verbose_name='Статус отправки', null=True, blank=True)
     server_answer = models.TextField(null=True, blank=True)
-    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name='Рассылка')
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, related_name='logs', verbose_name='Рассылка')
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 

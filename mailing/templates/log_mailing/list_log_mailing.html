@@ -1,0 +1,63 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+
+<div class="row align-items-start mt-4 me-0 ms-0">
+    <div class="rounded-3 shadow mt-4 ms-3 col-6">
+        <h2 class="mb-4 mt-1 text-center">Список рассылок</h2>
+        <ul class="list-group mb-1" id="log-list">
+            {% for mailing in mailings %}
+            <li class="list-group-item btn-lg btn btn-dark text-start mb-2"
+                data-id="{{ mailing.id }}"
+                data-url="{% url 'mailing:detail_log_mailing' mailing.id %}">
+                id {{ mailing.id }} - {{ mailing.message.message_subject }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="rounded-3 shadow col-5 ms-3 mt-4 me-3 ms-auto position-relative" id="detail-log">
+        <p class="text-muted text-center">Выберите рассылку из списка для подробной информации</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const logsList = document.getElementById('log-list');
+const detailsContainer = document.getElementById('detail-log');
+
+
+logsList.addEventListener('click', function(e) {
+if (e.target && e.target.matches('.list-group-item')) {
+const logId = e.target.getAttribute('data-id');
+const url = e.target.getAttribute('data-url');
+
+
+fetch(url, {
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+    }
+})
+.then(response => response.json())
+.then(data => {
+detailsContainer.innerHTML = `
+<h5 class="card-title text-center mt-2">${data.name}</h5>
+<p class="mt-2"><strong>Всего попыток отправки:</strong> ${data.all_try}</p>
+<p><strong>Успешных попыток:</strong> ${data.all_success_try}</p>
+<p><strong>Не успешных попыток:</strong> ${data.all_unsuccess_try}</p>
+<p class="mb-5 pb-5"><strong>Процент успешных попыток:</strong> ${data.success_rate}%</p>
+<div class="position-absolute bottom-0 start-50 translate-middle-x d-flex mb-3">
+    <a href="${data.url}" class="btn-lg btn btn-light bg-secondary bg-opacity-25 me-1">Подробнее</a>
+</div>
+`;
+})
+.catch(error => {
+console.error('Ошибка:', error);
+detailsContainer.innerHTML = '<div class="mt-3 alert alert-danger">Не удалось загрузить данные</div>';
+});
+}
+});
+});
+</script>
+{% endblock %}
+
+

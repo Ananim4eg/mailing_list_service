@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
@@ -179,6 +179,10 @@ class SendEmailView(DetailView):
                 status='success',
             )
 
+            if mailing.status != 'started':
+                mailing.status = 'started'
+                mailing.save()
+
             return redirect('mailing:success_page')
 
         except Exception as e:
@@ -186,7 +190,7 @@ class SendEmailView(DetailView):
             LogMailing.objects.create(
                 mailing=mailing,
                 run_time=timezone.now(),
-                status='success',
+                status='unsuccess',
                 server_answer=f'error: {str(e)}'
             )
             messages.error(request, f"Ошибка: {str(e)}")
@@ -236,31 +240,68 @@ class DeleteMailingView(DeleteView):
     success_url = reverse_lazy('mailing:all_mailing')
 
 
-class CreateLogMailingView(CreateView):
-    """Контроллер для страницы создание логирования рассылки"""
-
-    model = LogMailing
-
-
 class ListLogMailingView(ListView):
     """Контроллер для страницы со списком всех логов всех рассылок"""
 
     model = LogMailing
+    template_name = 'log_mailing/list_log_mailing.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        mailings_with_logs = Mailing.objects.filter(logs__isnull=False).distinct()
+
+        mailings_with_logs = mailings_with_logs.select_related('message')
+
+        context['mailings'] = mailings_with_logs
+        return context
 
 
-class DetailLogMailingView(DetailView):
+
+class DetailLogMailingView(View):
+    """Контроллер для страницы с информацией лога отдельной рассылки"""
+
+    def get(self, request, pk):
+
+        all_try = LogMailing.objects.filter(mailing=pk)
+        all_success_try = all_try.filter(status='success').count()
+        all_unsuccess_try = all_try.filter(status='unsuccess').count()
+        success_rate = int(round((all_success_try / all_try.count()) * 100, 0))
+
+        mailing = all_try.first().mailing
+        mailing_name = f'id {mailing.pk} - {mailing.message.message_subject}'
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            data = {
+                'name': mailing_name,
+                'all_try': all_try.count(),
+                'all_success_try': all_success_try,
+                'all_unsuccess_try': all_unsuccess_try,
+                'success_rate': success_rate,
+                'url': reverse('mailing:detail_info_mailing', kwargs={'pk': pk})
+            }
+
+            return JsonResponse(data)
+
+        return HttpResponse('Ошибка получения данных о рассылке', status=400)
+
+
+class DetailInfoLogMailingView(DetailView):
     """Контроллер для страницы с подробной информацией лога отдельной рассылки"""
 
     model = LogMailing
+    template_name = 'log_mailing/detail_log_mailing.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-class UpdateLogMailingView(UpdateView):
-    """Контроллер для страницы изменения настроек лога для рассылки"""
+        all_try = LogMailing.objects.filter(mailing=self.kwargs['pk'])
+        all_success_try = all_try.filter(status='success')
+        all_unsuccess_try = all_try.filter(status='unsuccess')
 
-    model = LogMailing
+        context ={
+            'all_success_try': all_success_try,
+            'all_unsuccess_try': all_unsuccess_try
+        }
 
-
-class DeleteLogMailingView(DeleteView):
-    """Контроллер для страницы удаления логирования рассылки"""
-
-    model = LogMailing
+        return context
