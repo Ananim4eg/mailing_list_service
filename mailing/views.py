@@ -1,9 +1,12 @@
+from django.core.mail import send_mail
+from django.contrib import messages
 from django.http import JsonResponse
 from django.urls import reverse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
-from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
+from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView, TemplateView
 
 from mailing.forms import RecipientForm, MessageForm, MailingForm
 from mailing.models import Recipient, Message, Mailing, LogMailing
@@ -134,6 +137,72 @@ class ListMailingView(ListView):
     model = Mailing
     template_name = 'mailing/list_mailing.html'
     context_object_name = 'mailings'
+
+
+class ConfirmationSendMailingView(DetailView):
+    """Контроллер для страницы подтверждения отправки рассылки"""
+
+    model = Mailing
+    template_name = 'mailing/confirmation_send_mailing.html'
+
+
+class SendEmailView(DetailView):
+    """Контроллер для отправки писем"""
+
+    model = Mailing
+
+    def post(self, request, pk):
+        mailing = self.get_object()
+
+        try:
+            subject = mailing.message.message_subject
+            message_body = mailing.message.message_body
+            recipient_list = [r.email for r in mailing.recipient.all()]
+
+            if not recipient_list:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Нет получателей для отправки!'
+                })
+
+            send_mail(
+                subject=subject,
+                message=message_body,
+                from_email='new.mail.test@mail.ru',
+                recipient_list=recipient_list,
+                fail_silently=False
+            )
+
+            LogMailing.objects.create(
+                mailing=mailing,
+                run_time=timezone.now(),
+                status='success',
+            )
+
+            return redirect('mailing:success_page')
+
+        except Exception as e:
+
+            LogMailing.objects.create(
+                mailing=mailing,
+                run_time=timezone.now(),
+                status='success',
+                server_answer=f'error: {str(e)}'
+            )
+            messages.error(request, f"Ошибка: {str(e)}")
+            return redirect('mailing:error_page')
+
+
+class SuccessSendView(TemplateView):
+    """Контроллер для успешной отправки"""
+
+    template_name = 'mailing/success_page.html'
+
+
+class ErrorSendView(TemplateView):
+    """Контроллер для не успешной отправки"""
+
+    template_name = 'mailing/error_page.html'
 
 
 class DetailMailingView(DetailView):

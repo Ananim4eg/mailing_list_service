@@ -10,9 +10,15 @@
     <h3 class="mb-4 mt-1 text-center">Список рассылок</h3>
     <ul class="list-group">
         {% for mailing in mailings %}
-        <li class="border-black border-opacity-25 list-group-item btn-lg btn btn-dark">
-            <a class="stretched-link" href="{% url 'mailing:detail_mailing' pk=mailing.pk %}"></a>
-            id - {{ mailing.id }} "{{ mailing.message }}"
+        <li class="border-black border-opacity-25 list-group-item d-flex p-0 rounded-2">
+            <a class="btn btn-outline-secondary flex-fill border-0 w-75 rounded-end-0 text-black"
+               href="{% url 'mailing:detail_mailing' pk=mailing.pk %}">
+                id - {{ mailing.id }} "{{ mailing.message }}"
+            </a>
+            <a class="btn btn btn-light bg-opacity-25 flex-fill border-0 w-25 rounded-start-0 text-black"
+               href="{% url 'mailing:confirmation_mailing' pk=mailing.pk %}">
+                Отправить
+            </a>
         </li>
         {% endfor %}
     </ul>

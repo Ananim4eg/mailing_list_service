@@ -6,7 +6,7 @@ class Recipient(models.Model):
 
     email = models.EmailField(unique=True, verbose_name='Почта получателя')
     full_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='ФИО')
-    comment = models.TextField(verbose_name='Комментарий')
+    comment = models.TextField(verbose_name='Комментарий', null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 
@@ -70,15 +70,15 @@ class LogMailing(models.Model):
         ('unsuccess', 'Не успешно'),
     ]
 
-    run_time = models.DateTimeField()
-    status = models.CharField(choices=STATUS_CHOICES, verbose_name='Статус отправки')
-    server_answer = models.TextField()
+    run_time = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Дата и время попытки')
+    status = models.CharField(choices=STATUS_CHOICES, verbose_name='Статус отправки', null=True, blank=True)
+    server_answer = models.TextField(null=True, blank=True)
     mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name='Рассылка')
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 
     def __str__(self):
-        return f'{self.mailing} - {self.status}'
+        return f'{self.run_time} - {self.status}'
 
     class Meta:
         verbose_name = 'попытка рассылки'

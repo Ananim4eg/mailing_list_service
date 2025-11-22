@@ -1,6 +1,6 @@
 from django import forms
 
-from mailing.models import Recipient, Message, Mailing
+from mailing.models import Recipient, Message, Mailing, LogMailing
 
 
 class RecipientForm(forms.ModelForm):
@@ -33,7 +33,7 @@ class RecipientForm(forms.ModelForm):
 
 
 class MessageForm(forms.ModelForm):
-    """Форма для полей модели получателя"""
+    """Форма для полей модели сообщения"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,7 +56,7 @@ class MessageForm(forms.ModelForm):
 
 
 class MailingForm(forms.ModelForm):
-    """Форма для полей модели получателя"""
+    """Форма для полей модели рассылки"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,3 +79,19 @@ class MailingForm(forms.ModelForm):
     class Meta:
         model = Mailing
         fields = ['recipient', 'message','status',]
+
+
+class LogMailingForm(forms.ModelForm):
+    """Форма для полей модели логирования рассылки"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['mailing'].widget.attrs.update({
+            'class': 'form-control',
+            'style': 'width: 600px;'
+        })
+
+    class Meta:
+        model = LogMailing
+        fields = ['mailing',]

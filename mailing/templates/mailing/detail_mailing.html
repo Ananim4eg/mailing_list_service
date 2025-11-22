@@ -12,7 +12,8 @@
             {% endfor %}
         </p>
         <h5 class="mt-4">Сообщение:</h5>
-        <p>{{ mailing.message.message_subject }}</p>
+        <a class="link-underline-opacity-0 link-dark link-offset-2 link-underline-opacity-100-hover"
+           href="{% url 'mailing:detail_message' pk=mailing.message.pk %}">{{ mailing.message.message_subject }}</a>
         <h5 class="mt-4">Статус:</h5>
         <p>{{ mailing.get_status_display }}</p>
         <h5 class="mt-4">Дата первого сообщения:</h5>
