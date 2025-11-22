@@ -171,6 +171,10 @@ class SendEmailView(DetailView):
         success_count = 0
         failed_emails = []
 
+        if mailing.status != 'started':
+            mailing.status = 'started'
+            mailing.save()
+
         try:
             subject = mailing.message.message_subject
             message_body = mailing.message.message_body
@@ -203,9 +207,6 @@ class SendEmailView(DetailView):
                     status='success',
                     server_answer=f'Отправлено {success_count} писем'
                 )
-                if mailing.status != 'started':
-                    mailing.status = 'started'
-                    mailing.save()
 
                 return redirect('mailing:success_page')
 
