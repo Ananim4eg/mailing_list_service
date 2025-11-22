@@ -19,6 +19,10 @@ class Command(BaseCommand):
         success_count = 0
         failed_emails = []
 
+        if mailing.status != 'started':
+            mailing.status = 'started'
+            mailing.save()
+
         try:
             subject = mailing.message.message_subject
             message_body = mailing.message.message_body
@@ -48,9 +52,7 @@ class Command(BaseCommand):
                     status='success',
                     server_answer=f'Отправлено {success_count} писем'
                 )
-                if mailing.status != 'started':
-                    mailing.status = 'started'
-                    mailing.save()
+
                 return self.stdout.write(self.style.SUCCESS('Рассылка отправлена всем получателям'))
             else:
                 error_msg = f'Не удалось отправить на {len(failed_emails)} адресов: {", ".join(failed_emails)}'

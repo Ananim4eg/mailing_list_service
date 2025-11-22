@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     'mailing',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -100,6 +101,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -119,3 +123,5 @@ CACHES = {
         'LOCATION': 'redis://127.0.0.1:6379/1',
     }
 }
+
+AUTH_USER_MODEL = 'users.CustomUser'
