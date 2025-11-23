@@ -1,0 +1,15 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Вход на сайт</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn btn-light bg-secondary bg-opacity-25 mt-1 me-1">Войти</button>
+        <a href="{% url 'mailing:home_page' %}" class="btn btn btn-light bg-secondary bg-opacity-25 mt-1 ms-1">Назад</a>
+    </form>
+</div>
+
+{% endblock %}
