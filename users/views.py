@@ -1,5 +1,6 @@
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import login
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -15,6 +16,11 @@ class RegisterView(FormView):
     form_class = CustomUserCreateForm
     template_name = 'registration.html'
     success_url = reverse_lazy('mailing:home_page')
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return super().form_valid(form)
 
 
 class CustomLoginView(LoginView):

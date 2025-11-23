@@ -27,6 +27,7 @@ class Message(models.Model):
 
     message_subject = models.CharField(max_length=50, verbose_name='Тема письма')
     message_body = models.TextField(verbose_name='Тело письма')
+    owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, verbose_name='Владелец', null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 

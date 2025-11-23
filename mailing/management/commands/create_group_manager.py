@@ -35,6 +35,7 @@ class Command(BaseCommand):
             'users.can_disable_user',
             'mailing.can_disable_mailing',
             'mailing.view_mailing',
+            'mailing.view_message',
         ]
 
         for perm_codename in desired_permissions:

@@ -102,6 +102,11 @@ class CreateMessageView(CreateView):
     template_name = 'message/create_message.html'
     success_url = reverse_lazy('mailing:all_message')
 
+    def form_valid(self, form):
+        """Добавляем текущего авторизованного пользователя как владельца при создании сообщения"""
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
 
 class ListMessageView(ListView):
     """Контроллер для страницы со списком всех сообщений"""
