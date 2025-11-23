@@ -41,6 +41,11 @@ class CreateRecipientView(CreateView):
     template_name = "recipient/create_recipient.html"
     success_url = reverse_lazy('mailing:home_page')
 
+    def form_valid(self, form):
+        """Добавляем текущего авторизованного пользователя как владельца при создании получателя"""
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
 class ListRecipientView(ListView):
     """Контроллер для страницы со списком всех получателей рассылки"""
 
@@ -143,6 +148,11 @@ class CreateMailingView(CreateView):
     form_class = MailingForm
     template_name = 'mailing/create_mailing.html'
     success_url = reverse_lazy('mailing:all_mailing')
+
+    def form_valid(self, form):
+        """Добавляем текущего авторизованного пользователя как владельца при создании рассылки"""
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class ListMailingView(ListView):

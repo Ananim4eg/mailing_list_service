@@ -1,5 +1,7 @@
 from django.db import models
 
+from users.models import CustomUser
+
 
 class Recipient(models.Model):
     """Модель получателя рассылки"""
@@ -7,6 +9,7 @@ class Recipient(models.Model):
     email = models.EmailField(unique=True, verbose_name='Почта получателя')
     full_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='ФИО')
     comment = models.TextField(verbose_name='Комментарий', null=True, blank=True)
+    owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, verbose_name='Владелец', null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 
@@ -50,6 +53,7 @@ class Mailing(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, default='created', verbose_name='Статус рассылки')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='Сообщение')
     recipient = models.ManyToManyField(Recipient, related_name='mailings')
+    owner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, verbose_name='Владелец', null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 
