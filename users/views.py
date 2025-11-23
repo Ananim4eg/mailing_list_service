@@ -4,9 +4,9 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.contrib import messages
-from django.views.generic import FormView, DetailView
+from django.views.generic import FormView, DetailView, UpdateView
 
-from users.forms import CustomUserCreateForm, CustomUserLogin
+from users.forms import CustomUserCreateForm, CustomUserLogin, ProfileForm
 from users.models import CustomUser
 
 
@@ -38,3 +38,16 @@ class UserProfileView(DetailView):
 
     model = CustomUser
     template_name = 'profile.html'
+    context_object_name = 'user'
+
+
+class UserUpdateProfileView(UpdateView):
+    """Контроллер для профиля пользователя"""
+
+    model = CustomUser
+    form_class = ProfileForm
+    template_name = 'update_profile.html'
+    context_object_name = 'user'
+
+    def get_success_url(self):
+        return reverse_lazy('users:profile', kwargs={'pk': self.object.pk})

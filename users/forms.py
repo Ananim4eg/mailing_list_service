@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from users.models import CustomUser
@@ -44,7 +45,7 @@ class CustomUserLogin(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(CustomUserLogin, self).__init__(*args, **kwargs)
 
-        self.fields['email'].widget.attrs.update({
+        self.fields['username'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Введите почту',
             'style': 'width: 300px;'
@@ -55,3 +56,37 @@ class CustomUserLogin(AuthenticationForm):
             'placeholder': 'Введите пароль',
             'style': 'width: 300px;'
         })
+
+
+class ProfileForm(forms.ModelForm):
+    """Форма для полей модели сообщения"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['email'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите адрес электронной почты',
+            'style': 'width: 450px;'
+        })
+
+        self.fields['avatar'].widget.attrs.update({
+            'class': 'form-control',
+            'style': 'width: 450px;'
+        })
+
+        self.fields['phone_number'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите номер телефона',
+            'style': 'width: 450px;'
+        })
+
+        self.fields['country'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите страну проживания',
+            'style': 'width: 450px;'
+        })
+
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'avatar', 'phone_number', 'country', 'is_active']

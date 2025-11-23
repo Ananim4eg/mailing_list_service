@@ -44,7 +44,7 @@
                         {% endif %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end bg-secondary bg-opacity-25">
-                        <li><a class="dropdown-item text-black" href="/?contact=5">Профиль</a></li>
+                        <li><a class="dropdown-item text-black" href="{% url 'users:profile' pk=user.pk %}">Профиль</a></li>
                         <li><a class="dropdown-item text-black" href="{% url 'users:logout' %}">Выход</a></li>
                     </ul>
                 </div>

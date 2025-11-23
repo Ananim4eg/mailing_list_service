@@ -60,6 +60,7 @@ class Mailing(models.Model):
         verbose_name = 'рассылка'
         verbose_name_plural = 'рассылки'
         ordering = ['status']
+        permissions = [('can_disable_mailing', 'can disable mailing'), ]
 
 
 class LogMailing(models.Model):
