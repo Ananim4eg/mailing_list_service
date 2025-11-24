@@ -3,12 +3,12 @@
 {% include 'main_menu.html' %}
 
 <div class="container mt-5">
-    <h2 class="mb-4">Редактирование профиля {{ user.email }}</h2>
+    <h2 class="mb-4">Редактирование профиля {{ service_user.email }}</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn-lg btn btn-light bg-secondary bg-opacity-25 pt-1 pb-1">Сохранить</button>
-        <a href="{% url 'users:profile' pk=user.pk %}" class="btn-lg btn btn-light bg-secondary bg-opacity-25 pt-1 pb-1">Отмена</a>
+        <button onclick="history.back(); return false;" class="btn-lg btn btn-light bg-secondary bg-opacity-25 pt-1 pb-1">Отмена</button>
     </form>
 </div>
 

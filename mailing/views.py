@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
@@ -9,6 +10,7 @@ from django.views import View
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView, TemplateView
 
 from mailing.forms import RecipientForm, MessageForm, MailingForm
+from mailing.mixins import OwnerCheckMixin
 from mailing.models import Recipient, Message, Mailing, LogMailing
 
 
@@ -46,7 +48,7 @@ class CreateRecipientView(CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
-class ListRecipientView(ListView):
+class ListRecipientView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех получателей рассылки"""
 
     model = Recipient
@@ -76,7 +78,7 @@ class DetailRecipientView(View):
         return render(request, 'recipient/detail_recipient.html', {'recipient': recipient})
 
 
-class UpdateRecipientView(UpdateView):
+class UpdateRecipientView(OwnerCheckMixin, UpdateView):
     """Контроллер для страницы изменения информации о получателе рассылки"""
 
     model = Recipient
@@ -85,7 +87,9 @@ class UpdateRecipientView(UpdateView):
     success_url = reverse_lazy('mailing:all_recipient')
 
 
-class DeleteRecipientView(DeleteView):
+
+
+class DeleteRecipientView(OwnerCheckMixin, DeleteView):
     """Контроллер для страницы удаления получателя рассылки"""
 
     model = Recipient
@@ -108,7 +112,7 @@ class CreateMessageView(CreateView):
         return super().form_valid(form)
 
 
-class ListMessageView(ListView):
+class ListMessageView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех сообщений"""
 
     model = Message
@@ -116,7 +120,7 @@ class ListMessageView(ListView):
     context_object_name = 'messages'
 
 
-class DetailMessageView(DetailView):
+class DetailMessageView(OwnerCheckMixin, DetailView):
     """Контроллер для страницы с подробной информацией об отдельном сообщении"""
 
     model = Message
@@ -125,7 +129,7 @@ class DetailMessageView(DetailView):
     context_object_name = 'message'
 
 
-class UpdateMessageView(UpdateView):
+class UpdateMessageView(OwnerCheckMixin, UpdateView):
     """Контроллер для страницы изменения сообщения"""
 
     model = Message
@@ -137,7 +141,7 @@ class UpdateMessageView(UpdateView):
         return reverse_lazy('mailing:detail_message', kwargs={'pk': self.object.pk})
 
 
-class DeleteMessageView(DeleteView):
+class DeleteMessageView(OwnerCheckMixin, DeleteView):
     """Контроллер для страницы удаления сообщения"""
 
     model = Message
@@ -160,7 +164,7 @@ class CreateMailingView(CreateView):
         return super().form_valid(form)
 
 
-class ListMailingView(ListView):
+class ListMailingView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех рассылок"""
 
     model = Mailing
@@ -168,7 +172,7 @@ class ListMailingView(ListView):
     context_object_name = 'mailings'
 
 
-class ConfirmationSendMailingView(DetailView):
+class ConfirmationSendMailingView(OwnerCheckMixin, DetailView):
     """Контроллер для страницы подтверждения отправки рассылки"""
 
     model = Mailing
@@ -259,7 +263,7 @@ class ErrorSendView(TemplateView):
     template_name = 'mailing/error_page.html'
 
 
-class DetailMailingView(DetailView):
+class DetailMailingView(OwnerCheckMixin, DetailView):
     """Контроллер для страницы с подробной информацией о рассылке"""
 
     model = Mailing
@@ -268,7 +272,7 @@ class DetailMailingView(DetailView):
     context_object_name = 'mailing'
 
 
-class UpdateMailingView(UpdateView):
+class UpdateMailingView(OwnerCheckMixin, UpdateView):
     """Контроллер для страницы изменения рассылки"""
 
     model = Mailing
@@ -280,7 +284,7 @@ class UpdateMailingView(UpdateView):
         return reverse_lazy('mailing:detail_mailing', kwargs={'pk': self.object.pk})
 
 
-class DeleteMailingView(DeleteView):
+class DeleteMailingView(OwnerCheckMixin, DeleteView):
     """Контроллер для страницы удаления рассылки"""
 
     model = Mailing
@@ -290,7 +294,7 @@ class DeleteMailingView(DeleteView):
     success_url = reverse_lazy('mailing:all_mailing')
 
 
-class ListLogMailingView(ListView):
+class ListLogMailingView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех логов всех рассылок"""
 
     model = LogMailing
@@ -354,3 +358,15 @@ class DetailInfoLogMailingView(DetailView):
         }
 
         return context
+
+
+def my_message_403(request, exception=None):
+    return render(
+        request,
+        '403.html',  # ваш шаблон
+        {
+            'message': 'У вас нет доступа к этому объекту.',
+            'exception': 'Вы не являетесь владельцем'
+        },
+        status=403
+    )

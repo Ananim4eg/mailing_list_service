@@ -9,12 +9,14 @@
         <h2 class="mb-4 mt-1 text-center">Список получателей</h2>
         <ul class="list-group mb-1" id="recipients-list">
             {% for recipient in recipients %}
+            {% if recipient.owner == user %}
             <li class="list-group-item btn-lg btn btn-dark text-start mb-2"
                 data-id="{{ recipient.id }}"
                 data-url="{% url 'mailing:detail_recipient' recipient.id %}">
                 {{ recipient.email }}<br>
                 {{ recipient.full_name }}
             </li>
+            {% endif %}
             {% endfor %}
         </ul>
     </div>

@@ -1,11 +1,11 @@
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.contrib import messages
-from django.views.generic import FormView, DetailView, UpdateView
+from django.views.generic import FormView, DetailView, UpdateView, ListView
 
 from users.forms import CustomUserCreateForm, CustomUserLogin, ProfileForm
 from users.models import CustomUser
@@ -55,5 +55,21 @@ class UserUpdateProfileView(UpdateView):
     template_name = 'update_profile.html'
     context_object_name = 'user'
 
+    def get_context_data(self, **kwargs):
+        """Получаем текущего пользователя и пользователя для профиля и передаем в шаблон"""
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['service_user'] = get_object_or_404(CustomUser, pk=self.kwargs['pk'])
+
+        return context
+
     def get_success_url(self):
         return reverse_lazy('users:profile', kwargs={'pk': self.object.pk})
+
+
+class ServiceUsersListView(ListView):
+    """Контроллер для списка пользователей"""
+
+    model = CustomUser
+    template_name = 'service_users.html'
+    context_object_name = 'users'
