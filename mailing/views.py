@@ -55,6 +55,12 @@ class ListRecipientView(LoginRequiredMixin, ListView):
     template_name = "recipient/list_recipient.html"
     context_object_name = 'recipients'
 
+    def get_context_data(self, **kwargs):
+        """Передаем в шаблон принадлежность пользователя к группе доступа"""
+        context = super().get_context_data(**kwargs)
+        context['is_manager'] = self.request.user.groups.filter(name='manager').exists()
+
+        return context
 
 class DetailRecipientView(View):
     """Контроллер для страницы с подробной информацией о получателе рассылки"""
@@ -366,7 +372,7 @@ def my_message_403(request, exception=None):
         '403.html',  # ваш шаблон
         {
             'message': 'У вас нет доступа к этому объекту.',
-            'exception': 'Вы не являетесь владельцем'
+            'exception': exception
         },
         status=403
     )

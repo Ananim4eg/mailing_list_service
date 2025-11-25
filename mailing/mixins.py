@@ -9,6 +9,6 @@ class OwnerCheckMixin:
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
-        if self.request.user == self.get_owner(obj):
+        if self.request.user == self.get_owner(obj) or self.request.user.is_superuser:
             return obj
-        raise PermissionDenied("У вас нет доступа к этому объекту.")
+        raise PermissionDenied("Вы не являетесь владельцем.")

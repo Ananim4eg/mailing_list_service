@@ -1,6 +1,7 @@
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
@@ -63,6 +64,27 @@ class UserUpdateProfileView(UpdateView):
 
         return context
 
+    def get_object(self, queryset = None):
+        self.object = super().get_object(queryset)
+        if self.request.user.is_superuser or self.request.user.groups.filter(name='manager').exists():
+            return self.object
+        raise PermissionDenied('Этот профиль другого пользователя')
+
+    def get_form(self, form_class=None):
+        """Формируем поля формы в зависимости от прав пользователя"""
+        form = super().get_form(form_class)
+
+        form_fields = ['email', 'avatar', 'phone_number', 'country',]
+
+        if self.request.user.groups.filter(name='manager').exists() and self.request.user.pk != self.object.pk:
+            for field in form_fields:
+                form.fields.pop(field, None)
+
+        if self.object.is_superuser:
+            raise PermissionDenied("Вы не можете изменять профиль суперпользователя")
+
+        return form
+
     def get_success_url(self):
         return reverse_lazy('users:profile', kwargs={'pk': self.object.pk})
 
@@ -73,3 +95,4 @@ class ServiceUsersListView(ListView):
     model = CustomUser
     template_name = 'service_users.html'
     context_object_name = 'users'
+
