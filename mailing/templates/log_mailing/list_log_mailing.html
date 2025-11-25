@@ -3,7 +3,7 @@
 {% include 'main_menu.html' %}
 
 <div class="row align-items-start mt-4 me-0 ms-0">
-    <div class="rounded-3 shadow mt-4 ms-3 col-6">
+    <div class="rounded-3 shadow mt-4 ms-3 col-6 overflow-auto" style="max-height: calc(100vh - 150px); min-height: 150px;">
         <h2 class="mb-4 mt-1 text-center">Список рассылок</h2>
         <ul class="list-group mb-1" id="log-list">
             {% for mailing in mailings %}

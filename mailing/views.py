@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
@@ -47,6 +48,7 @@ class CreateRecipientView(CreateView):
         """Добавляем текущего авторизованного пользователя как владельца при создании получателя"""
         form.instance.owner = self.request.user
         return super().form_valid(form)
+
 
 class ListRecipientView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех получателей рассылки"""
@@ -134,6 +136,14 @@ class DetailMessageView(OwnerCheckMixin, DetailView):
     template_name = 'message/detail_message.html'
     context_object_name = 'message'
 
+    def dispatch(self, request, *args, **kwargs):
+        """Формирование информации о причастности пользователя к группе доступа и передача ее в миксин"""
+        if self.request.user.groups.filter(name='manager').exists():
+            self.extra_context = {
+                'is_manager': True,
+            }
+        return super().dispatch(request, *args, **kwargs)
+
 
 class UpdateMessageView(OwnerCheckMixin, UpdateView):
     """Контроллер для страницы изменения сообщения"""
@@ -196,14 +206,17 @@ class SendEmailView(DetailView):
         success_count = 0
         failed_emails = []
 
-        if mailing.status != 'started':
-            mailing.status = 'started'
-            mailing.save()
-
         try:
             subject = mailing.message.message_subject
             message_body = mailing.message.message_body
             recipient_list = mailing.recipient.all()
+
+            if mailing.status == 'stoped':
+                raise Exception('Рассылка отключена')
+
+            if mailing.status == 'created':
+                mailing.status = 'started'
+                mailing.save()
 
             if not recipient_list:
                 return JsonResponse({
@@ -276,6 +289,22 @@ class DetailMailingView(OwnerCheckMixin, DetailView):
     form_class = MailingForm
     template_name = 'mailing/detail_mailing.html'
     context_object_name = 'mailing'
+
+    def dispatch(self, request, *args, **kwargs):
+        """Формирование информации о причастности пользователя к группе доступа и передача ее в миксин"""
+        if self.request.user.groups.filter(name='manager').exists():
+            self.extra_context = {
+                'is_manager': True,
+            }
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Передаем в шаблон принадлежность пользователя к группе доступа"""
+        context = super().get_context_data(**kwargs)
+        context['is_manager'] = self.request.user.groups.filter(name='manager').exists()
+        context['valid_statuses'] = ['started', 'created']
+
+        return context
 
 
 class UpdateMailingView(OwnerCheckMixin, UpdateView):
@@ -364,6 +393,32 @@ class DetailInfoLogMailingView(DetailView):
         }
 
         return context
+
+
+class ToggleActivateView(View):
+    def post(self, request, pk):
+        if not request.user.groups.filter(name='manager').exists():
+            return PermissionDenied('У Вас нет такого права.')
+
+        obj = get_object_or_404(Mailing, pk=pk)
+
+        obj.status = 'started'
+        obj.save()
+
+        return redirect('mailing:detail_mailing', pk)
+
+
+class ToggleDeactivateView(View):
+    def post(self, request, pk):
+        if not request.user.groups.filter(name='manager').exists():
+            return PermissionDenied('У Вас нет такого права.')
+
+        obj = get_object_or_404(Mailing, pk=pk)
+
+        obj.status = 'stoped'
+        obj.save()
+
+        return redirect('mailing:detail_mailing', pk)
 
 
 def my_message_403(request, exception=None):

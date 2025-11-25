@@ -5,7 +5,7 @@ from mailing.views import CreateRecipientView, ListRecipientView, UpdateRecipien
     DeleteRecipientView, HomeListView, ListMessageView, CreateMessageView, UpdateMessageView, DetailMessageView, \
     DeleteMessageView, DeleteMailingView, DetailMailingView, UpdateMailingView, CreateMailingView, ListMailingView, \
     DetailLogMailingView, ListLogMailingView, ConfirmationSendMailingView, SendEmailView, SuccessSendView, \
-    ErrorSendView, DetailInfoLogMailingView
+    ErrorSendView, DetailInfoLogMailingView, ToggleActivateView, ToggleDeactivateView
 
 app_name = MailingConfig.name
 
@@ -33,6 +33,8 @@ urlpatterns = [
     path('mailing/send/<int:pk>/', SendEmailView.as_view(), name='send_mailing'),
     path('mailing/success/', SuccessSendView.as_view(), name='success_page'),
     path('mailing/error/', ErrorSendView.as_view(), name='error_page'),
+    path('mailing/detail/activate/<int:pk>/', ToggleActivateView.as_view(), name='activate_mailing'),
+    path('mailing/detail/deactivate/<int:pk>/', ToggleDeactivateView.as_view(), name='deactivate_mailing'),
 
     path('log_mailing/', ListLogMailingView.as_view(), name='all_log_mailing'),
     path('log_mailing/detail/<int:pk>/', DetailLogMailingView.as_view(), name='detail_log_mailing'),

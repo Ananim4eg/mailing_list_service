@@ -26,6 +26,18 @@
         <a href="{% url 'mailing:all_mailing' %}" class="btn-lg btn btn-secondary pt-1 pb-1 mt-3">Назад</a>
         <a href="{% url 'mailing:delete_mailing' pk=mailing.pk %}"
            class="btn-lg btn btn-danger pt-1 pb-1 mt-3 ms-auto">Удалить</a>
+        {% if is_manager and object.status in valid_statuses %}
+            <form method="post" action="{% url 'mailing:deactivate_mailing' pk=mailing.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-lg btn btn-danger pt-1 pb-1 mt-3">Отключить</button>
+            </form>
+        {% elif is_manager and object.status == 'stoped' %}
+            <form method="post" action="{% url 'mailing:activate_mailing' pk=mailing.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-lg btn btn-success pt-1 pb-1 mt-3">Включить</button>
+            </form>
+        {% endif %}
+
     </div>
 </div>
 

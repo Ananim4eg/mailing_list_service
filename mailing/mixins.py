@@ -8,7 +8,11 @@ class OwnerCheckMixin:
         return obj.owner
 
     def get_object(self, queryset=None):
+
         obj = super().get_object(queryset)
-        if self.request.user == self.get_owner(obj) or self.request.user.is_superuser:
+        extra_data = getattr(self, 'extra_context', None)
+
+        if self.request.user == self.get_owner(obj) or self.request.user.is_superuser or extra_data:
             return obj
+
         raise PermissionDenied("Вы не являетесь владельцем.")
