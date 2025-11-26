@@ -1,7 +1,11 @@
 {% block content %}
 
 {% include 'main_menu.html' %}
-
+<div class="row text-center">
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+</div>
 <div class="container mt-5">
     <h1 class="mb-4">Регистрация</h1>
     <form method="post" enctype="multipart/form-data">

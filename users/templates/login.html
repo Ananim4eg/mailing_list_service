@@ -1,6 +1,11 @@
 {% block content %}
 
 {% include 'main_menu.html' %}
+<div class="row text-center mt-3">
+    {% for message in messages %}
+      <h5 class="text-success">{{ message }}</h5>
+    {% endfor %}
+</div>
 
 <div class="container mt-5">
     <h1 class="mb-4">Вход на сайт</h1>

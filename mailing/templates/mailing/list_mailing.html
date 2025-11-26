@@ -10,6 +10,7 @@
     <h3 class="mb-4 mt-1 text-center">Список рассылок</h3>
     <ul class="list-group">
         {% for mailing in mailings %}
+        {% if mailing.owner == user or user.is_superuser or is_manager %}
         <li class="border-black border-opacity-25 list-group-item d-flex p-0 rounded-2">
             <a class="btn btn-outline-secondary flex-fill border-0 w-75 rounded-end-0 text-black"
                href="{% url 'mailing:detail_mailing' pk=mailing.pk %}">
@@ -20,6 +21,7 @@
                 Отправить
             </a>
         </li>
+        {% endif %}
         {% endfor %}
     </ul>
 </div>

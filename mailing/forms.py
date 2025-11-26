@@ -59,7 +59,14 @@ class MailingForm(forms.ModelForm):
     """Форма для полей модели рассылки"""
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        is_superuser = kwargs.pop('is_superuser', None)
+        is_show_manager = kwargs.pop('is_show_manager', None)
         super().__init__(*args, **kwargs)
+
+        if user and not is_superuser and not is_show_manager:
+            self.fields['recipient'].queryset = Recipient.objects.filter(owner=user)
+            self.fields['message'].queryset = Message.objects.filter(owner=user)
 
         self.fields['recipient'].widget.attrs.update({
             'class': 'form-select',

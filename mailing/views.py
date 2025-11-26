@@ -95,8 +95,6 @@ class UpdateRecipientView(OwnerCheckMixin, UpdateView):
     success_url = reverse_lazy('mailing:all_recipient')
 
 
-
-
 class DeleteRecipientView(OwnerCheckMixin, DeleteView):
     """Контроллер для страницы удаления получателя рассылки"""
 
@@ -126,6 +124,13 @@ class ListMessageView(LoginRequiredMixin, ListView):
     model = Message
     template_name = 'message/list_message.html'
     context_object_name = 'messages'
+
+    def get_context_data(self, **kwargs):
+        """Передаем в шаблон принадлежность пользователя к группе доступа"""
+        context = super().get_context_data(**kwargs)
+        context['is_manager'] = self.request.user.groups.filter(name='manager').exists()
+
+        return context
 
 
 class DetailMessageView(OwnerCheckMixin, DetailView):
@@ -179,6 +184,14 @@ class CreateMailingView(CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['is_show_manager'] = self.request.user.groups.filter(name='manager').exists()
+        kwargs['is_superuser'] = self.request.user.is_superuser
+
+        return kwargs
+
 
 class ListMailingView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех рассылок"""
@@ -186,6 +199,13 @@ class ListMailingView(LoginRequiredMixin, ListView):
     model = Mailing
     template_name = 'mailing/list_mailing.html'
     context_object_name = 'mailings'
+
+    def get_context_data(self, **kwargs):
+        """Передаем в шаблон принадлежность пользователя к группе доступа"""
+        context = super().get_context_data(**kwargs)
+        context['is_manager'] = self.request.user.groups.filter(name='manager').exists()
+
+        return context
 
 
 class ConfirmationSendMailingView(OwnerCheckMixin, DetailView):
@@ -339,10 +359,13 @@ class ListLogMailingView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         mailings_with_logs = Mailing.objects.filter(logs__isnull=False).distinct()
-
         mailings_with_logs = mailings_with_logs.select_related('message')
 
+        if not self.request.user.is_superuser and not self.request.user.groups.filter(name='manager').exists():
+            mailings_with_logs = mailings_with_logs.filter(owner=self.request.user)
+
         context['mailings'] = mailings_with_logs
+
 
         return context
 
