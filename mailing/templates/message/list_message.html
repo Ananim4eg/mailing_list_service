@@ -1,0 +1,22 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="btn-group" role="group">
+    <a href="{% url 'mailing:create_message' %}" class="btn-lg btn btn-light bg-secondary bg-opacity-25 ms-5 mt-3">Добавить
+        сообщение</a>
+</div>
+<div class="container rounded-4 shadow mt-4 col-6 overflow-auto" style="max-height: calc(100vh - 200px); min-height: 150px;">
+    <h3 class="mb-4 mt-1 text-center">Список сообщений</h3>
+    <ul class="list-group mb-1">
+        {% for message in messages %}
+        {% if message.owner == user or user.is_superuser or is_manager %}
+        <li class="list-group-item mb-2 btn-lg btn btn-dark">
+            <a class="stretched-link" href="{% url 'mailing:detail_message' pk=message.pk %}"></a>{{ message.message_subject }}
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+

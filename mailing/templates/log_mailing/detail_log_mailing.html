@@ -1,0 +1,20 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+
+<div class="row align-items-start m-0">
+    <div class="rounded-3 shadow mt-4 ms-5 col-5">
+        <h2 class="mb-4 mt-1 text-center">Успешные попытки</h2>
+        {% for try in all_success_try %}
+        <p>{{ try.run_time|date:'Y-m-d H:i:s' }} - {{ try.get_status_display }}</p>
+        {% endfor %}
+    </div>
+    <div class="rounded-3 shadow col-5 ms-3 mt-4 me-5 ms-auto ">
+        <h2 class="mb-4 mt-1 text-center">Не успешные попытки</h2>
+        {% for try in all_unsuccess_try %}
+        <p>{{ try.run_time|date:'Y-m-d H:i:s' }} - {{ try.get_status_display }}</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

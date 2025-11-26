@@ -1,0 +1,15 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+
+<div class="container rounded-4 shadow mt-4 col-6">
+    <h3 class="mb-4 mt-1 text-center">Список пользователей</h3>
+    <ul class="list-group mb-1">
+        {% for user in users %}
+        <li class="list-group-item mb-2 btn-lg btn btn-dark">
+            <a class="stretched-link" href="{% url 'users:update_profile' pk=user.pk %}"></a>{{ user.email }}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% block content %}
+
+{% include 'main_menu.html' %}
+<div class="btn-group" role="group">
+    <a href="{% url 'mailing:create_mailing' %}" class="btn-lg btn btn-light bg-secondary bg-opacity-25 ms-5 mt-3">
+        Добавить рассылку
+    </a>
+</div>
+<div class="container rounded-4 shadow mt-4 col-6 pb-3 overflow-auto" style="max-height: calc(100vh - 200px); min-height: 150px;">
+    <h3 class="mb-4 mt-1 text-center">Список рассылок</h3>
+    <ul class="list-group">
+        {% for mailing in mailings %}
+        {% if mailing.owner == user or user.is_superuser or is_manager %}
+        <li class="border-black border-opacity-25 list-group-item d-flex p-0 rounded-2">
+            <a class="btn btn-outline-secondary flex-fill border-0 w-75 rounded-end-0 text-black"
+               href="{% url 'mailing:detail_mailing' pk=mailing.pk %}">
+                id - {{ mailing.id }} "{{ mailing.message }}"
+            </a>
+            <a class="btn btn btn-light bg-opacity-25 flex-fill border-0 w-25 rounded-start-0 text-black"
+               href="{% url 'mailing:confirmation_mailing' pk=mailing.pk %}">
+                Отправить
+            </a>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+
