@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 
 from users.models import CustomUser
 
@@ -90,3 +90,37 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['email', 'avatar', 'phone_number', 'country', 'is_active']
+
+
+class ResetPasswordForm(PasswordResetForm):
+    """Форма для сброса пароля"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['email'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите адрес электронной почты',
+            'style': 'width: 450px;'
+        })
+
+    class Meta:
+        model = CustomUser
+        fields = ['email',]
+
+
+class SelectPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(user, *args, **kwargs)
+
+        self.fields['new_password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Введите новый пароль',
+            'style': 'width: 450px;'
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Повторите пароль',
+            'style': 'width: 450px;'
+        })

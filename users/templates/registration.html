@@ -1,19 +1,18 @@
 {% block content %}
 
 {% include 'main_menu.html' %}
-<div class="row text-center">
-    {% for message in messages %}
-      <p>{{ message }}</p>
-    {% endfor %}
-</div>
-<div class="container mt-5">
-    <h1 class="mb-4">Регистрация</h1>
-    <form method="post" enctype="multipart/form-data">
+<div class="container col-5 position-relative" style="max-height: calc(100vh - 200px); min-height: 750px">
+    <div class="row text-center">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    <form method="post" enctype="multipart/form-data" class="position-absolute top-50 start-50 translate-middle">
+        <h1 class="mb-4 ms-5 ps-5">Регистрация</h1>
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn btn-light bg-secondary bg-opacity-25">Зарегистрироваться</button>
         <a href="{% url 'mailing:home_page' %}" class="btn btn btn-light bg-secondary bg-opacity-25">Назад</a>
     </form>
 </div>
-
 {% endblock %}

@@ -1,5 +1,4 @@
 import os
-from django.contrib import messages
 from pathlib import Path
 
 from dotenv import load_dotenv

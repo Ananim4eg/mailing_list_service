@@ -1,19 +1,19 @@
 {% block content %}
 
 {% include 'main_menu.html' %}
-<div class="row text-center mt-3">
-    {% for message in messages %}
-      <h5 class="text-success">{{ message }}</h5>
-    {% endfor %}
-</div>
-
-<div class="container mt-5">
-    <h1 class="mb-4">Вход на сайт</h1>
-    <form method="post">
+<div class="container col-5 position-relative" style="height: calc(100vh - 300px); min-height: 300px;">
+    <div class="row text-center mt-3">
+        {% for message in messages %}
+        <h5 class="text-success">{{ message }}</h5>
+        {% endfor %}
+    </div>
+    <form method="post" class="position-absolute top-50 start-50 translate-middle">
+        <h1 class="mb-4 ms-4">Вход на сайт</h1>
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn btn-light bg-secondary bg-opacity-25 mt-1 me-1">Войти</button>
         <a href="{% url 'mailing:home_page' %}" class="btn btn btn-light bg-secondary bg-opacity-25 mt-1 ms-1">Назад</a>
+        <a href="{% url 'users:password_reset' %} " class="text-decoration-none ms-4">Сброс пароля</a>
     </form>
 </div>
 

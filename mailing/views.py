@@ -142,7 +142,7 @@ class DetailMessageView(OwnerCheckMixin, DetailView):
     context_object_name = 'message'
 
     def dispatch(self, request, *args, **kwargs):
-        """Формирование информации о причастности пользователя к группе доступа и передача ее в миксин"""
+        """Формирование информации, о нахождении пользователя к группе доступа, и передача ее в миксин"""
         if self.request.user.groups.filter(name='manager').exists():
             self.extra_context = {
                 'is_manager': True,
@@ -311,7 +311,7 @@ class DetailMailingView(OwnerCheckMixin, DetailView):
     context_object_name = 'mailing'
 
     def dispatch(self, request, *args, **kwargs):
-        """Формирование информации о причастности пользователя к группе доступа и передача ее в миксин"""
+        """Формирование информации, о нахождении пользователя к группе доступа, и передача ее в миксин"""
         if self.request.user.groups.filter(name='manager').exists():
             self.extra_context = {
                 'is_manager': True,
