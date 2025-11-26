@@ -1,13 +1,16 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
+from django.core.cache import cache
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView, TemplateView
 
 from mailing.forms import RecipientForm, MessageForm, MailingForm
@@ -15,6 +18,7 @@ from mailing.mixins import OwnerCheckMixin
 from mailing.models import Recipient, Message, Mailing, LogMailing
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class HomeListView(ListView):
     """Контроллер для стартовой страницы"""
 
@@ -50,6 +54,7 @@ class CreateRecipientView(CreateView):
         return super().form_valid(form)
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ListRecipientView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех получателей рассылки"""
 
@@ -64,6 +69,7 @@ class ListRecipientView(LoginRequiredMixin, ListView):
 
         return context
 
+
 class DetailRecipientView(View):
     """Контроллер для страницы с подробной информацией о получателе рассылки"""
 
@@ -75,7 +81,7 @@ class DetailRecipientView(View):
                 'fullname': recipient.full_name,
                 'email': recipient.email,
                 'comment': recipient.comment,
-                'urls':{
+                'urls': {
                     'url_1': reverse('mailing:update_recipient', kwargs={'pk': recipient.pk}),
                     'url_2': reverse('mailing:delete_recipient', kwargs={'pk': recipient.pk}),
                 }
@@ -94,6 +100,14 @@ class UpdateRecipientView(OwnerCheckMixin, UpdateView):
     template_name = "recipient/update_recipient.html"
     success_url = reverse_lazy('mailing:all_recipient')
 
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
+
 
 class DeleteRecipientView(OwnerCheckMixin, DeleteView):
     """Контроллер для страницы удаления получателя рассылки"""
@@ -104,6 +118,7 @@ class DeleteRecipientView(OwnerCheckMixin, DeleteView):
     success_url = reverse_lazy('mailing:all_recipient')
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class CreateMessageView(CreateView):
     """Контроллер для страницы создание сообщения"""
 
@@ -118,6 +133,7 @@ class CreateMessageView(CreateView):
         return super().form_valid(form)
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ListMessageView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех сообщений"""
 
@@ -149,6 +165,14 @@ class DetailMessageView(OwnerCheckMixin, DetailView):
             }
         return super().dispatch(request, *args, **kwargs)
 
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
+
 
 class UpdateMessageView(OwnerCheckMixin, UpdateView):
     """Контроллер для страницы изменения сообщения"""
@@ -161,6 +185,14 @@ class UpdateMessageView(OwnerCheckMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('mailing:detail_message', kwargs={'pk': self.object.pk})
 
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
+
 
 class DeleteMessageView(OwnerCheckMixin, DeleteView):
     """Контроллер для страницы удаления сообщения"""
@@ -169,6 +201,14 @@ class DeleteMessageView(OwnerCheckMixin, DeleteView):
     template_name = 'message/delete_message.html'
     context_object_name = 'message'
     success_url = reverse_lazy('mailing:all_message')
+
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
 
 
 class CreateMailingView(CreateView):
@@ -185,6 +225,7 @@ class CreateMailingView(CreateView):
         return super().form_valid(form)
 
     def get_form_kwargs(self):
+        """Передаем в форму пользователя, принадлежность к группе доступа manager и статуса суперпользователя"""
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['is_show_manager'] = self.request.user.groups.filter(name='manager').exists()
@@ -193,6 +234,7 @@ class CreateMailingView(CreateView):
         return kwargs
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ListMailingView(LoginRequiredMixin, ListView):
     """Контроллер для страницы со списком всех рассылок"""
 
@@ -326,7 +368,16 @@ class DetailMailingView(OwnerCheckMixin, DetailView):
 
         return context
 
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
 
+
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class UpdateMailingView(OwnerCheckMixin, UpdateView):
     """Контроллер для страницы изменения рассылки"""
 
@@ -334,6 +385,15 @@ class UpdateMailingView(OwnerCheckMixin, UpdateView):
     form_class = MailingForm
     template_name = 'mailing/update_mailing.html'
     context_object_name = 'mailing'
+
+    def get_form_kwargs(self):
+        """Передаем в форму пользователя, принадлежность к группе доступа manager и статуса суперпользователя"""
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['is_show_manager'] = self.request.user.groups.filter(name='manager').exists()
+        kwargs['is_superuser'] = self.request.user.is_superuser
+
+        return kwargs
 
     def get_success_url(self):
         return reverse_lazy('mailing:detail_mailing', kwargs={'pk': self.object.pk})
@@ -347,6 +407,14 @@ class DeleteMailingView(OwnerCheckMixin, DeleteView):
     template_name = 'mailing/delete_mailing.html'
     context_object_name = 'mailing'
     success_url = reverse_lazy('mailing:all_mailing')
+
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
 
 
 class ListLogMailingView(LoginRequiredMixin, ListView):
@@ -365,7 +433,6 @@ class ListLogMailingView(LoginRequiredMixin, ListView):
             mailings_with_logs = mailings_with_logs.filter(owner=self.request.user)
 
         context['mailings'] = mailings_with_logs
-
 
         return context
 
@@ -410,15 +477,24 @@ class DetailInfoLogMailingView(DetailView):
         all_success_try = all_try.filter(status='success')
         all_unsuccess_try = all_try.filter(status='unsuccess')
 
-        context ={
+        context = {
             'all_success_try': all_success_try,
             'all_unsuccess_try': all_unsuccess_try
         }
 
         return context
 
+    def get_queryset(self):
+        """Низкоуровневое кэширование"""
+        queryset = cache.get('my_queryset')
+        if not queryset:
+            queryset = super().get_queryset()
+            cache.set('my_queryset', queryset, 60 * 15)
+        return queryset
+
 
 class ToggleActivateView(View):
+    """Контроллер активации рассылки"""
     def post(self, request, pk):
         if not request.user.groups.filter(name='manager').exists():
             return PermissionDenied('У Вас нет такого права.')
@@ -432,6 +508,7 @@ class ToggleActivateView(View):
 
 
 class ToggleDeactivateView(View):
+    """Контроллера отключения рассылки"""
     def post(self, request, pk):
         if not request.user.groups.filter(name='manager').exists():
             return PermissionDenied('У Вас нет такого права.')
@@ -445,6 +522,7 @@ class ToggleDeactivateView(View):
 
 
 def my_message_403(request, exception=None):
+    """Кастомная функция для страницы с ошибкой 403"""
     return render(
         request,
         '403.html',  # ваш шаблон

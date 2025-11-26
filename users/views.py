@@ -7,11 +7,13 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
 from django.core.mail import EmailMessage
+from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView, UpdateView, ListView
 
 from users.forms import CustomUserCreateForm, CustomUserLogin, ProfileForm, ResetPasswordForm, SelectPasswordForm
@@ -58,12 +60,14 @@ class CustomLoginView(LoginView):
 
 
 class CustomLogoutView(View):
+    """Контроллер для выхода из профиля"""
     def get(self, request, *args, **kwargs):
         logout(request)
 
         return redirect('mailing:home_page')
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class UserProfileView(DetailView):
     """Контроллер для профиля пользователя"""
 
@@ -90,7 +94,8 @@ class UserUpdateProfileView(UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.request.user.is_superuser or self.request.user.groups.filter(name='manager').exists():
+        if self.request.user.is_superuser or self.request.user.groups.filter(
+                name='manager').exists() or self.request.user == self.object:
             return self.object
         raise PermissionDenied('Этот профиль другого пользователя')
 
@@ -104,7 +109,7 @@ class UserUpdateProfileView(UpdateView):
             for field in form_fields:
                 form.fields.pop(field, None)
 
-        if self.object.is_superuser:
+        if self.object.is_superuser and not self.request.user.is_superuser:
             raise PermissionDenied("Вы не можете изменять профиль суперпользователя")
 
         return form
@@ -123,6 +128,7 @@ class ServiceUsersListView(ListView):
 
 class ActivateView(View):
     """Контроллер для активации пользователя после регистрации"""
+
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
@@ -149,7 +155,7 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
     template_name = 'password_reset_form.html'
     success_url = reverse_lazy('users:login')
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """Метод формирует и отправляет письмо для восстановления пароля"""
         form = ResetPasswordForm(request.POST)
         if form.is_valid():

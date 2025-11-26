@@ -85,7 +85,7 @@ class MailingForm(forms.ModelForm):
 
     class Meta:
         model = Mailing
-        fields = ['recipient', 'message','status',]
+        fields = ['recipient', 'message', 'status',]
 
 
 class LogMailingForm(forms.ModelForm):
